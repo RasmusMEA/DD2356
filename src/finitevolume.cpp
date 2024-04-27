@@ -163,16 +163,8 @@ std::array<mtx, 2> meshgrid(const std::vector<double> &xv,
   return {x_res, y_res};
 }
 
-void printM(std::vector<Matrix> m) {
-  for (auto l : m) {
-    l.print();
-    printf("\n");
-  }
-  printf("\n");
-}
-
 void simloop() {
-  size_t N = 5;
+  size_t N = 128;
   double boxsize = 1.0;
   double gamma = 5.0 / 3.0;
   double courant_fac = 0.4;
@@ -261,25 +253,13 @@ void simloop() {
 
     auto [flux_Mass_X, flux_Momx_X, flux_Momy_X, flux_Energy_X] =
         getFlux(rho_XL, rho_XR, vx_XL, vx_XR, vy_XL, vy_XR, P_XL, P_XR, gamma);
-
-    // Momx_Y is wrong
-    auto [flux_Mass_Y, flux_Momx_Y, flux_Momy_Y, flux_Energy_Y] =
+    auto [flux_Mass_Y, flux_Momy_Y, flux_Momx_Y, flux_Energy_Y] =
         getFlux(rho_YL, rho_YR, vy_YL, vy_YR, vx_YL, vx_YR, P_YL, P_YR, gamma);
 
-    // right
     Mass = applyFluxes(Mass, flux_Mass_X, flux_Mass_Y, dx, dt);
-
-    // wrong
     Momx = applyFluxes(Momx, flux_Momx_X, flux_Momx_Y, dx, dt);
-
-    // wrong
     Momy = applyFluxes(Momy, flux_Momy_X, flux_Momy_Y, dx, dt);
-    // right
     Energy = applyFluxes(Energy, flux_Energy_X, flux_Energy_Y, dx, dt);
-
-    // printM({Mass, Momx, Momy, Energy});
-
-    usleep(3000000);
 
     t += dt;
 
