@@ -36,6 +36,8 @@ class Matrix {
   Matrix rollLeft() const;
   Matrix rollRight() const;
 
+  void writeToFile(FILE *stream) const;
+
   // If element in array is zero, then add constant d to it
   Matrix zeroCheck(double d) const;
 

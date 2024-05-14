@@ -1,6 +1,7 @@
 #include "matrix.h"
 
 #include <cmath>
+#include <cstdio>
 #include <stdexcept>
 
 Matrix operator*(const Matrix a, const Matrix b) {
@@ -434,4 +435,8 @@ double Matrix::min(const Matrix &a) {
   }
 
   return minval;
+}
+
+void Matrix::writeToFile(FILE *stream) const {
+  fwrite(m_data, sizeof(double), m_rows * m_cols, stream);
 }

@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include <cmath>
+#include <cstdio>
 #include <tuple>
 #include <vector>
 
@@ -164,7 +165,9 @@ std::array<mtx, 2> meshgrid(const std::vector<double> &xv,
 }
 
 void simloop() {
-  size_t N = 128;
+  FILE *stream = fopen("output.bin", "wb");
+  // TODO: Write N as first line of output.bin
+  size_t N = 16;
   double boxsize = 1.0;
   double gamma = 5.0 / 3.0;
   double courant_fac = 0.4;
@@ -265,10 +268,10 @@ void simloop() {
 
     if (plotThisTurn || t >= tEnd) {
       outputCount += 1;
-      // TODO: Write frame to file
+      rho.writeToFile(stream);
     }
-
-    rho.print();
-    printf("\n");
   }
+
+  fclose(stream);
+  printf("done!, outputcount: %zu\n", outputCount);
 }
