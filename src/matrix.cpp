@@ -3,8 +3,9 @@
 #include <cmath>
 #include <cstdio>
 #include <stdexcept>
+#include <algorithm>
 
-Matrix operator*(const Matrix a, const Matrix b) {
+Matrix operator*(const Matrix &a, const Matrix &b) {
   if (a.rows() != b.rows() || a.cols() != b.cols()) {
     throw std::out_of_range("Mismatched dimensions for element_mul");
   }
@@ -20,7 +21,7 @@ Matrix operator*(const Matrix a, const Matrix b) {
   return res;
 }
 
-Matrix operator*(const Matrix a, double b) {
+Matrix operator*(const Matrix &a, double b) {
   Matrix res(a);
 
   for (size_t y = 0; y < a.rows(); ++y) {
@@ -32,12 +33,12 @@ Matrix operator*(const Matrix a, double b) {
   return res;
 }
 
-Matrix operator*(double a, const Matrix b) { return b * a; }
+Matrix operator*(double a, const Matrix &b) { return b * a; }
 
-Matrix operator+(const Matrix a, const Matrix b) {
-  if (a.rows() != b.rows() || a.cols() != b.cols()) {
-    throw std::out_of_range("Mismatched dimensions for element_add");
-  }
+Matrix operator+(const Matrix &a, const Matrix &b) {
+  // if (a.rows() != b.rows() || a.cols() != b.cols()) {
+  //   throw std::out_of_range("Mismatched dimensions for element_add");
+  // }
 
   Matrix res = a;
 
@@ -50,7 +51,7 @@ Matrix operator+(const Matrix a, const Matrix b) {
   return res;
 }
 
-Matrix operator+(const Matrix a, double b) {
+Matrix operator+(const Matrix &a, double b) {
   Matrix res(a);
 
   for (size_t y = 0; y < a.rows(); ++y) {
@@ -62,9 +63,9 @@ Matrix operator+(const Matrix a, double b) {
   return res;
 }
 
-Matrix operator+(double a, const Matrix b) { return b + a; }
+Matrix operator+(double a, const Matrix &b) { return b + a; }
 
-Matrix operator-(const Matrix a, const Matrix b) {
+Matrix operator-(const Matrix &a, const Matrix &b) {
   if (a.rows() != b.rows() || a.cols() != b.cols()) {
     throw std::out_of_range("Mismatched dimensions for element_sub");
   }
@@ -80,7 +81,7 @@ Matrix operator-(const Matrix a, const Matrix b) {
   return res;
 }
 
-Matrix operator-(const Matrix a, double b) {
+Matrix operator-(const Matrix &a, double b) {
   Matrix res(a);
 
   for (size_t y = 0; y < a.rows(); ++y) {
@@ -92,7 +93,7 @@ Matrix operator-(const Matrix a, double b) {
   return res;
 }
 
-Matrix operator-(double a, const Matrix b) {
+Matrix operator-(double a, const Matrix &b) {
   Matrix res(b);
 
   for (size_t y = 0; y < b.rows(); ++y) {
@@ -104,7 +105,7 @@ Matrix operator-(double a, const Matrix b) {
   return res;
 }
 
-Matrix operator/(const Matrix a, const Matrix b) {
+Matrix operator/(const Matrix &a, const Matrix &b) {
   if (a.rows() != b.rows() || a.cols() != b.cols()) {
     throw std::out_of_range("Mismatched dimensions for element_div");
   }
@@ -124,7 +125,7 @@ Matrix operator/(const Matrix a, const Matrix b) {
   return res;
 }
 
-Matrix operator/(const Matrix a, double b) {
+Matrix operator/(const Matrix &a, double b) {
   Matrix res(a);
 
   bool set_all_zero = b == 0;
@@ -142,7 +143,7 @@ Matrix operator/(const Matrix a, double b) {
   return res;
 }
 
-Matrix operator/(double a, const Matrix b) {
+Matrix operator/(double a, const Matrix& b) {
   Matrix res(b);
 
   for (size_t y = 0; y < b.rows(); ++y) {
@@ -158,8 +159,78 @@ Matrix operator/(double a, const Matrix b) {
   return res;
 }
 
+Matrix& Matrix::operator+=(const Matrix &b) {
+  for(size_t y = 0; y < m_rows * m_cols; ++y) {
+		m_data[y] += b.m_data[y];
+	}
+
+  return *this;
+}
+
+Matrix& Matrix::operator+=(const double b) {
+	for (size_t y = 0; y < m_rows * m_cols; ++y) {
+		m_data[y] += b;
+	}
+
+  return *this;
+}
+
+Matrix& Matrix::operator-=(const Matrix &b) {
+  for(size_t y = 0; y < m_rows * m_cols; ++y) {
+		m_data[y] -= b.m_data[y];
+	}
+
+  return *this;
+}
+
+Matrix& Matrix::operator-=(const double b) {
+	for (size_t y = 0; y < m_rows * m_cols; ++y) {
+		m_data[y] -= b;
+	}
+
+  return *this;
+}
+
+Matrix& Matrix::operator*=(const Matrix &b) {
+	for (size_t y = 0; y < m_rows * m_cols; ++y) {
+		m_data[y] *= b.m_data[y];
+	}
+
+  return *this;
+}
+Matrix& Matrix::operator*=(const double b) {
+	for (size_t y = 0; y < m_rows * m_cols; ++y) {
+		m_data[y] *= b;
+	}
+
+  return *this;
+}
+
+Matrix& Matrix::operator/=(const Matrix &b) {
+	for (size_t y = 0; y < m_rows * m_cols; ++y) {
+		if (b.m_data[y] == 0) {
+			m_data[y] = 0;
+		} else {
+			m_data[y] /= b.m_data[y];
+		}
+	}
+  
+  return *this;
+}
+Matrix& Matrix::operator/=(const double b) {
+	for (size_t y = 0; y < m_rows * m_cols; ++y) {
+		if (b == 0) {
+			m_data[y] = 0;
+		} else {
+			m_data[y] /= b;
+		}
+	}
+	return *this;
+}
+
 // Constructors
 Matrix::Matrix(size_t rows, size_t cols) : m_rows(rows), m_cols(cols) {
+  // printf("(d d) constructor called\n");
   m_data = new double[m_rows * m_cols]{};
 }
 
@@ -168,6 +239,8 @@ Matrix::~Matrix() { delete[] m_data; }
 // copy constructor
 Matrix::Matrix(const Matrix &other)
     : m_rows(other.m_rows), m_cols(other.m_cols) {
+    
+  // printf("copy constructor called\n");
   m_data = new double[m_rows * m_cols];
 
   for (size_t i = 0; i < other.m_cols * other.m_rows; ++i) {
@@ -177,6 +250,7 @@ Matrix::Matrix(const Matrix &other)
 
 // move constructor
 Matrix::Matrix(Matrix &&other) noexcept {
+  // printf("move construct called\n");
   if (this == &other) {
     return;
   }
@@ -188,6 +262,7 @@ Matrix::Matrix(Matrix &&other) noexcept {
 
 // copy assignment operator
 Matrix &Matrix::operator=(const Matrix &other) {
+  // printf("copy assign called\n");
   if (this == &other) {
     return *this;
   }
@@ -210,6 +285,7 @@ Matrix &Matrix::operator=(const Matrix &other) {
 
 // move assignment operator
 Matrix &Matrix::operator=(Matrix &&other) noexcept {
+  // printf("move assign called\n");
   if (this == &other) {
     return *this;
   }
@@ -229,17 +305,17 @@ size_t Matrix::rows() const { return m_rows; }
 size_t Matrix::cols() const { return m_cols; }
 
 double &Matrix::operator()(size_t row, size_t col) {
-  if (row >= m_rows || col >= m_cols || row < 0 || col < 0) {
-    throw std::out_of_range("Accessed element outside array");
-  }
+  // if (row >= m_rows || col >= m_cols || row < 0 || col < 0) {
+  //   throw std::out_of_range("Accessed element outside array");
+  // }
 
   return m_data[row * m_cols + col];
 }
 
 const double &Matrix::operator()(size_t row, size_t col) const {
-  if (row >= m_rows || col >= m_cols || row < 0 || col < 0) {
-    throw std::out_of_range("Accessed element outside array");
-  }
+  // if (row >= m_rows || col >= m_cols || row < 0 || col < 0) {
+  //   throw std::out_of_range("Accessed element outside array");
+  // }
 
   return m_data[row * m_cols + col];
 }
@@ -257,9 +333,7 @@ void Matrix::print() const {
 Matrix Matrix::zeroCheck(double d) const {
   Matrix res(*this);
   for (size_t i = 0; i < m_cols * m_rows; ++i) {
-    if (res.m_data[i] == 0) {
-      res.m_data[i] = d;
-    }
+    res.m_data[i] = res.m_data[i] == 0 ? d : res.m_data[i];
   }
 
   return res;
@@ -316,9 +390,9 @@ Matrix Matrix::rollRight() const {
 }
 
 Matrix Matrix::maximum(const Matrix &a, const Matrix &b) {
-  if (a.rows() != b.rows() || a.cols() != b.cols()) {
-    throw std::out_of_range("Mismatched dimensions in maximum()");
-  }
+  // if (a.rows() != b.rows() || a.cols() != b.cols()) {
+  //   throw std::out_of_range("Mismatched dimensions in maximum()");
+  // }
 
   Matrix res(a);
 
@@ -346,9 +420,9 @@ Matrix Matrix::maximum(Matrix a, double b) {
 }
 
 Matrix Matrix::minimum(const Matrix &a, const Matrix &b) {
-  if (a.rows() != b.rows() || a.cols() != b.cols()) {
-    throw std::out_of_range("Mismatched dimensions in maximum()");
-  }
+  // if (a.rows() != b.rows() || a.cols() != b.cols()) {
+  //   throw std::out_of_range("Mismatched dimensions in maximum()");
+  // }
 
   Matrix res(a);
 
@@ -364,12 +438,15 @@ Matrix Matrix::minimum(const Matrix &a, const Matrix &b) {
 }
 
 Matrix Matrix::minimum(Matrix a, double b) {
-  for (size_t y = 0; y < a.rows(); ++y) {
-    for (size_t x = 0; x < a.cols(); ++x) {
-      if (b < a(y, x)) {
-        a(y, x) = b;
-      }
-    }
+  for (size_t i = 0; i < a.rows() * a.cols(); ++i) {
+    a.m_data[i] = std::min(a.m_data[i], b);
+  }
+  return a;
+}
+
+Matrix Matrix::clamp(Matrix a, double min, double max) {
+  for (size_t i = 0; i < a.m_rows * a.m_cols; ++i) {
+    a.m_data[i] = std::clamp(a.m_data[i], min, max);
   }
 
   return a;
@@ -377,9 +454,9 @@ Matrix Matrix::minimum(Matrix a, double b) {
 
 Matrix Matrix::sqrt(Matrix a) {
   for (size_t i = 0; i < a.m_rows * a.m_cols; ++i) {
-    if (a.m_data[i] < 0) {
-      std::clog << "Warning: sqrt with negative number" << std::endl;
-    }
+    // if (a.m_data[i] < 0) {
+    //   std::clog << "Warning: sqrt with negative number" << std::endl;
+    // }
     a.m_data[i] = std::sqrt(a.m_data[i]);
   }
 
@@ -410,7 +487,7 @@ Matrix Matrix::exp(Matrix a) {
 
 Matrix Matrix::filter_lt(Matrix a, double b) {
   for (size_t i = 0; i < a.m_rows * a.m_cols; ++i) {
-    a.m_data[i] = a.m_data[i] < b ? 1 : 0;
+    a.m_data[i] = a.m_data[i] < b;
   }
   return a;
 }

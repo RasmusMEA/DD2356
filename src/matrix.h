@@ -49,6 +49,8 @@ class Matrix {
   static Matrix minimum(const Matrix &a, const Matrix &b);
   static Matrix minimum(Matrix a, double b);
 
+  static Matrix clamp(Matrix a, double min, double max);
+
   static Matrix sin(Matrix a);
   static Matrix exp(Matrix a);
 
@@ -57,34 +59,36 @@ class Matrix {
 
   static Matrix ones(size_t rows, size_t cols);
   static double min(const Matrix &a);
+  
+  Matrix& operator+=(const Matrix & o);
+  Matrix& operator+=(const double o);
+
+  Matrix& operator-=(const Matrix & o);
+  Matrix& operator-=(const double o);
+
+  Matrix& operator*=(const Matrix & o);
+  Matrix& operator*=(const double o);
+
+  Matrix& operator/=(const Matrix & o);
+  Matrix& operator/=(const double o);
 };
 
 // Math operations
+Matrix operator+(const Matrix &a, const Matrix &b);
+Matrix operator+(const Matrix &a, double b);
+Matrix operator+(double a, const Matrix &b);
 
-Matrix operator*(const Matrix a, const Matrix b);
+Matrix operator-(const Matrix &a, const Matrix &b);
+Matrix operator-(const Matrix &a, double b);
+Matrix operator-(double a, const Matrix &b);
 
-Matrix operator*(const Matrix a, double b);
+Matrix operator*(const Matrix &a, const Matrix &b);
+Matrix operator*(const Matrix &a, double b);
+Matrix operator*(double a, const Matrix &b);
 
-Matrix operator*(double a, const Matrix b);
+Matrix operator/(const Matrix &a, const Matrix &b);
+Matrix operator/(const Matrix &a, double b);
+Matrix operator/(double a, const Matrix &b);
 
-Matrix operator+(const Matrix a, const Matrix b);
-
-Matrix operator+(const Matrix a, double b);
-
-Matrix operator+(double a, const Matrix b);
-
-Matrix operator-(const Matrix a, const Matrix b);
-
-Matrix operator-(const Matrix a, double b);
-
-Matrix operator-(double a, const Matrix b);
-
-Matrix operator/(const Matrix a, const Matrix b);
-
-Matrix operator/(const Matrix a, double b);
-
-Matrix operator/(double a, const Matrix b);
-
-//
 
 #endif  // MATRIX_H
