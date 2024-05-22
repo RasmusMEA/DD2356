@@ -7,12 +7,11 @@
 #include <utility>
 
 class Matrix {
- private:
+ public:
   double *m_data;
   size_t m_rows;
   size_t m_cols;
 
- public:
   // Constructors
   Matrix(size_t rows, size_t cols);
   ~Matrix();

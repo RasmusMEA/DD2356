@@ -1,11 +1,10 @@
 #include "finitevolume.h"
-
 #include <unistd.h>
-
 #include <cmath>
 #include <cstdio>
 #include <tuple>
 #include <vector>
+
 
 #include "matrix.h"
 
@@ -81,7 +80,10 @@ std::array<mtx, 4> getFlux(const mtx &rho_L, const mtx &rho_R, const mtx &vx_L,
   mtx en_L = P_L / (gamma - 1) + 0.5 * rho_L * ((vx_L * vx_L) + (vy_L * vy_L));
   mtx en_R = P_R / (gamma - 1) + 0.5 * rho_R * ((vx_R * vx_R) + (vy_R * vy_R));
 
-  mtx rho_star = 0.5 * (rho_L + rho_R);
+  // mtx rho_star = 0.5 * (rho_L + rho_R);
+  mtx rho_star = rho_L + rho_R;
+  rho_star *= 0.5;
+
   mtx momx_star = 0.5 * (rho_L * vx_L + rho_R * vx_R);
   mtx momy_star = 0.5 * (rho_L * vy_L + rho_R * vy_R);
   mtx en_star = 0.5 * (en_L + en_R);
@@ -144,7 +146,7 @@ std::array<mtx, 2> meshgrid(const std::vector<double> &xv,
 void simloop() {
   // FILE *stream = fopen("output.bin", "wb");
   // TODO: Write N as first line of output.bin
-  size_t N = 128;
+  size_t N = 32;
   double boxsize = 1.0;
   double gamma = 5.0 / 3.0;
   double courant_fac = 0.4;
