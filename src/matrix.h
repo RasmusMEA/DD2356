@@ -6,6 +6,7 @@ void sin_M(double *a, int N, double *out);
 void pow2_M(double *a, int N, double *out);
 void exp_M(double *a, int N, double *out);
 void sqrt_M(double *a, int N, double *out);
+void max_MM(double * a, double * b, int N, double *out);
 
 void lessthan_MD(double *a, double b, int N, double *out);
 

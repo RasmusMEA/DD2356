@@ -280,12 +280,128 @@ void getFlux(double *rho_L, double *rho_R, double *vx_L, double *vx_R,
 
   double *temp_a = (double *)malloc(N * N * sizeof(double));
   double *temp_b = (double *)malloc(N * N * sizeof(double));
+  double *temp_c = (double *)malloc(N * N * sizeof(double));
+  double *temp_d = (double *)malloc(N * N * sizeof(double));
 
   pow2_M(vx_L, N, temp_a);
+  pow2_M(vy_L, N, temp_b);
+  add_MM(temp_a, temp_b, N, temp_a);
+  mult_MM(temp_a, rho_L, N, temp_a);
+  mult_MD(temp_a, 0.5, N, temp_a);
+  div_MD(P_L, gamma - 1.0, N, temp_b);
+  add_MM(temp_a, temp_b, N, temp_a);
+  // temp_a = en_L correct
+
+  pow2_M(vx_R, N, temp_b);
+  pow2_M(vy_R, N, temp_c);
+  add_MM(temp_b, temp_c, N, temp_b);
+  mult_MM(temp_b, rho_R, N, temp_b);
+  mult_MD(temp_b, 0.5, N, temp_b);
+
+  div_MD(P_R, gamma - 1.0, N, temp_c);
+  add_MM(temp_b, temp_c, N, temp_b);
+  // temp_b = en_R correct
+
+  add_MM(rho_L, rho_R, N, temp_c);
+  mult_MD(temp_c, 0.5, N, temp_c);
+  // temp_c = rho_star
+
+  mult_MM(rho_L, vx_L, N, flux_Energy_o);
+  mult_MM(rho_R, vx_R, N, flux_Mass_o);
+  add_MM(flux_Energy_o, flux_Mass_o, N, flux_Mass_o);
+  mult_MD(flux_Mass_o, 0.5, N, flux_Mass_o);
+  // flux_Mass_o = momx_star, correct
+
+
+  mult_MM(rho_L, vy_L, N, flux_Momy_o);
+  mult_MM(rho_R, vy_R, N, flux_Momx_o);
+  add_MM(flux_Momx_o, flux_Momy_o, N, flux_Momy_o);
+  mult_MD(flux_Momy_o, 0.5, N, flux_Momy_o);
+  // flux_Momy_o = momy_star
+
+
+  add_MM(temp_a, temp_b, N, flux_Energy_o);
+  mult_MD(flux_Energy_o, 0.5, N, flux_Energy_o);
+  // flux_Energy_o = en_star
+
+  pow2_M(flux_Mass_o, N, flux_Momx_o);
+  // flux_Momx_o = momx_star**2
+  pow2_M(flux_Momy_o, N, temp_d);
+  add_MM(temp_d, flux_Momx_o, N, temp_d);
+  mult_MD(temp_d, 0.5, N, temp_d);
+  div_MM(temp_d, temp_c, N, temp_d);
+  sub_MM(flux_Energy_o, temp_d, N, temp_d);
+  mult_MD(temp_d, gamma - 1.0, N, temp_d);
+  // temp_d = P_star
+
+  div_MM(flux_Momx_o, temp_c, N, flux_Momx_o);
+  add_MM(flux_Momx_o, temp_d, N, flux_Momx_o);
+  // Flux_Momx_o = momx_star**2/rho_star + P_star incorrect
+
+  mult_MM(flux_Mass_o, flux_Momy_o, N, flux_Momy_o);
+  div_MM(flux_Momy_o, temp_c, N, flux_Momy_o);
+  // flux_momy_o = momx_star * momy_star/rho_star
+
+  add_MM(flux_Energy_o, temp_d, N, flux_Energy_o);
+  mult_MM(flux_Energy_o, flux_Mass_o, N, flux_Energy_o);
+  div_MM(flux_Energy_o, temp_c, N, flux_Energy_o);
+  // flux_Energy_o = (en_star+P_star) * momx_star/rho_star
   
-  // TODO: finish this!!
+  sub_MM(temp_a, temp_b, N, temp_a);
+  // temp_a = en_L - en_R
 
+  // temp_b,c,d free
 
+  mult_MD(P_L, gamma, N, temp_b);
+  div_MM(temp_b, rho_L, N, temp_b);
+  sqrt_M(temp_b, N, temp_b);
+
+  abs_M(vx_L, N, temp_c);
+  add_MM(temp_b, temp_c, N, temp_b);
+  // temp_b = C_L
+
+  mult_MD(P_R, gamma, N, temp_c);
+  div_MM(temp_c, rho_R, N, temp_c);
+  sqrt_M(temp_c, N, temp_c);
+
+  abs_M(vx_R, N, temp_d);
+  add_MM(temp_c, temp_d, N, temp_c);
+  // temp_c = C_R
+
+  max_MM(temp_b, temp_c, N, temp_b);
+  // temp_b = C
+
+  // final flux_mass calc
+  sub_MM(rho_L, rho_R, N, temp_c);
+  mult_MD(temp_c, 0.5, N, temp_c);
+  mult_MM(temp_c, temp_b, N, temp_c);
+  sub_MM(flux_Mass_o, temp_c, N, flux_Mass_o);
+
+  // final flux_momx calc
+  mult_MM(rho_L, vx_L, N, temp_c);
+  mult_MM(rho_R, vx_R, N, temp_d);
+  sub_MM(temp_c, temp_d, N, temp_c);
+  mult_MD(temp_c, 0.5, N, temp_c);
+  mult_MM(temp_c, temp_b, N, temp_c);
+  sub_MM(flux_Momx_o, temp_c, N, flux_Momx_o);
+
+  // final flux_momy calc
+  mult_MM(rho_L, vy_L, N, temp_c);
+  mult_MM(rho_R, vy_R, N, temp_d);
+  sub_MM(temp_c, temp_d, N, temp_c);
+  mult_MD(temp_c, 0.5, N, temp_c);
+  mult_MM(temp_c, temp_b, N, temp_c);
+  sub_MM(flux_Momy_o, temp_c, N, flux_Momy_o);
+
+  // final flux_Energy calc
+  mult_MD(temp_a, 0.5, N, temp_a);
+  mult_MM(temp_a, temp_b, N, temp_a);
+  sub_MM(flux_Energy_o, temp_a, N, flux_Energy_o); 
+
+  free(temp_a);
+  free(temp_b);
+  free(temp_c);
+  free(temp_d);
 }
 
 void applyFluxes(double *F, double *flux_F_X, double *flux_F_Y, int N,

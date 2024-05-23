@@ -5,10 +5,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <omp.h>
+
 
 int main() {
+  
+  omp_set_num_threads(8);
+  size_t threads = omp_get_max_threads();
+  // int i = omp_get_num_threads();
 
-  int N = 8;
+  printf("using %d threads\n", threads);
+
+  int N = 128;
   double boxsize = 1.0;
   double gamma = 5.0 / 3.0;
   double courant_fac = 0.4;
@@ -101,6 +109,8 @@ int main() {
 
   while (t < tEnd) {
 
+    printf("%lf / %lf\n", t, tEnd);
+
     getPrimitive(Mass, Momx, Momy, Energy, N, gamma, vol, rho, vx, vy, P);
 
     dt = getDt(rho, vx, vy, P, N, courant_fac, gamma, dx);
@@ -130,8 +140,9 @@ int main() {
 
     getFlux(rho_XL, rho_XR, vx_XL, vx_XR, vy_XL, vy_XR, P_XL, P_XR, N, gamma,
             flux_Mass_X, flux_Momx_X, flux_Momy_X, flux_Energy_X);
+
     getFlux(rho_YL, rho_YR, vy_YL, vy_YR, vx_YL, vx_YR, P_YL, P_YR, N, gamma,
-            flux_Mass_Y, flux_Momy_Y, flux_Momx_X, flux_Energy_Y);
+            flux_Mass_Y, flux_Momy_Y, flux_Momx_Y, flux_Energy_Y);
 
     applyFluxes(Mass, flux_Mass_X, flux_Mass_Y, N, dx, dt, Mass);
     applyFluxes(Momx, flux_Momx_X, flux_Momx_Y, N, dx, dt, Momx);
@@ -142,7 +153,6 @@ int main() {
 
     if (plotThisTurn || t >= tEnd) {
       outputCount += 1;
-      // save or display rho
     }
   }
 

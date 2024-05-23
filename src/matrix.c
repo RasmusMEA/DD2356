@@ -5,9 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <omp.h>
 
 void _MatrixOnMatrix(double *a, double *b, int N,
                      double (*func)(double, double), double *out) {
+
+  #pragma omp parallel for
   for (size_t i = 0; i < N * N; ++i) {
     out[i] = func(a[i], b[i]);
   }
@@ -15,12 +18,14 @@ void _MatrixOnMatrix(double *a, double *b, int N,
 
 void _MatrixOnDouble(double *a, double b, int N, double (*func)(double, double),
                      double *out) {
+  #pragma omp parallel for
   for (size_t i = 0; i < N * N; ++i) {
     out[i] = func(a[i], b);
   }
 }
 
 void _MatrixForEach(double *a, int N, double (*func)(double), double *out) {
+  #pragma omp parallel for
   for (size_t i = 0; i < N * N; ++i) {
     out[i] = func(a[i]);
   }
@@ -39,6 +44,10 @@ double lessthan(double a, double b) { return (double)(a < b); }
 double pow2(double a) { return a * a; }
 
 double expM(double a) { return pow(M_E, a); }
+
+double max(double a, double b) {
+  return a > b ? a : b;
+}
 
 void abs_M(double *a, int N, double *out) { _MatrixForEach(a, N, fabs, out); }
 
@@ -70,6 +79,11 @@ void sub_MM(double *a, double *b, int N, double *out) {
   _MatrixOnMatrix(a, b, N, sub, out);
 }
 
+
+void max_MM(double * a, double * b, int N, double *out) {
+  _MatrixOnMatrix(a, b, N, max, out);
+}
+
 void mult_MD(double *a, double b, int N, double *out) {
   _MatrixOnDouble(a, b, N, mult, out);
 }
@@ -79,6 +93,7 @@ void div_MD(double *a, double b, int N, double *out) {
 }
 
 void div_DM(double a, double * b, int N, double * out) {
+  #pragma omp parallel for
   for(int i = 0; i < N * N; ++i) {
     out[i] = a / b[i];
   }
@@ -95,16 +110,19 @@ void sub_MD(double *a, double b, int N, double *out) {
 void rollUp(double *a, int N, double *out) {
   double *temp = (double *)malloc(N * sizeof(double));
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     temp[i] = a[i];
   }
 
+  #pragma omp parallel for
   for (int y = 0; y < N - 1; ++y) {
     for (int x = 0; x < N; ++x) {
       out[y * N + x] = a[(y + 1) * N + x];
     }
   }
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     out[(N - 1) * N + i] = temp[i];
   }
@@ -115,16 +133,19 @@ void rollUp(double *a, int N, double *out) {
 void rollDown(double *a, int N, double *out) {
   double *temp = (double *)malloc(N * sizeof(double));
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     temp[i] = a[N * (N - 1) + i];
   }
 
+  #pragma omp parallel for
   for (int y = N - 1; y >= 1; --y) {
     for (int x = 0; x < N; ++x) {
       out[y * N + x] = a[(y - 1) * N + x];
     }
   }
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     out[i] = temp[i];
   }
@@ -134,16 +155,19 @@ void rollDown(double *a, int N, double *out) {
 
 void rollLeft(double *a, int N, double *out) {
   double *temp = (double *)malloc(N * sizeof(double));
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     temp[i] = a[i * N];
   }
 
+  #pragma omp parallel for
   for (int y = 0; y < N; ++y) {
     for (int x = 0; x < N - 1; ++x) {
       out[y * N + x] = a[y * N + x + 1];
     }
   }
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     out[N * i + N - 1] = temp[i];
   }
@@ -155,16 +179,19 @@ void rollRight(double *a, int N, double *out) {
 
   double *temp = (double *)malloc(N * sizeof(double));
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     temp[i] = a[i * N + N - 1];
   }
 
+  #pragma omp parallel for
   for (int y = 0; y < N; ++y) {
     for (int x = N - 1; x >= 1; --x) {
       out[y * N + x] = a[y * N + x - 1];
     }
   }
 
+  #pragma omp parallel for
   for (int i = 0; i < N; ++i) {
     out[N * i] = temp[i];
   }
@@ -189,6 +216,7 @@ void copy(double *to, double *from, int N) {
 double min(double * a, int N) {
   double min = DBL_MAX;
 
+  #pragma omp parallel for
   for(int i = 0; i < N * N; ++i) {
     if(a[i] < min) {
       min = a[i];
