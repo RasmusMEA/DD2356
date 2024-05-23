@@ -1,88 +1,33 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <cstddef>
-#include <iostream>
-#include <stdexcept>
-#include <utility>
+void abs_M(double *a, int N, double *out);
+void sin_M(double *a, int N, double *out);
+void pow2_M(double *a, int N, double *out);
+void exp_M(double *a, int N, double *out);
+void sqrt_M(double *a, int N, double *out);
 
-class Matrix {
- private:
-  double *m_data;
-  size_t m_rows;
-  size_t m_cols;
+void lessthan_MD(double *a, double b, int N, double *out);
 
- public:
-  // Constructors
-  Matrix(size_t rows, size_t cols);
-  ~Matrix();
-  Matrix(const Matrix &other);
-  Matrix(Matrix &&other) noexcept;
-  Matrix &operator=(const Matrix &other);
-  Matrix &operator=(Matrix &&other) noexcept;
+void mult_MM(double *a, double *b, int N, double *out);
+void div_MM(double *a, double *b, int N, double *out);
+void add_MM(double *a, double *b, int N, double *out);
+void sub_MM(double *a, double *b, int N, double *out);
 
-  // Accessors
-  size_t rows() const;
-  size_t cols() const;
+void mult_MD(double *a, double b, int N, double *out);
+void div_MD(double *a, double b, int N, double *out);
+void div_DM(double a, double * b, int N, double * out);
+void add_MD(double *a, double b, int N, double *out);
+void sub_MD(double *a, double b, int N, double *out);
 
-  double &operator()(size_t row, size_t col);
-  const double &operator()(size_t row, size_t col) const;
+void rollUp(double *a, int N, double *out);
+void rollDown(double *a, int N, double *out);
+void rollLeft(double *a, int N, double *out);
+void rollRight(double *a, int N, double *out);
 
-  // Misc
-  void print() const;
+double min(double * a, int N);
 
-  Matrix rollDown() const;
-  Matrix rollUp() const;
-  Matrix rollLeft() const;
-  Matrix rollRight() const;
+void copy(double *to, double *from, int N);
+void print(double *a, int N);
 
-  // If element in array is zero, then add constant d to it
-  Matrix zeroCheck(double d) const;
-
-  static Matrix abs(Matrix a);
-  static Matrix sqrt(Matrix a);
-  static Matrix maximum(const Matrix &a, const Matrix &b);
-  static Matrix maximum(Matrix a, double b);
-
-  static Matrix minimum(const Matrix &a, const Matrix &b);
-  static Matrix minimum(Matrix a, double b);
-
-  static Matrix sin(Matrix a);
-  static Matrix exp(Matrix a);
-
-  // return a matrix of 1's and 0's if a(i,j) < b
-  static Matrix filter_lt(Matrix a, double b);
-
-  static Matrix ones(size_t rows, size_t cols);
-  static double min(const Matrix &a);
-};
-
-// Math operations
-
-Matrix operator*(const Matrix a, const Matrix b);
-
-Matrix operator*(const Matrix a, double b);
-
-Matrix operator*(double a, const Matrix b);
-
-Matrix operator+(const Matrix a, const Matrix b);
-
-Matrix operator+(const Matrix a, double b);
-
-Matrix operator+(double a, const Matrix b);
-
-Matrix operator-(const Matrix a, const Matrix b);
-
-Matrix operator-(const Matrix a, double b);
-
-Matrix operator-(double a, const Matrix b);
-
-Matrix operator/(const Matrix a, const Matrix b);
-
-Matrix operator/(const Matrix a, double b);
-
-Matrix operator/(double a, const Matrix b);
-
-//
-
-#endif  // MATRIX_H
+#endif
