@@ -222,9 +222,9 @@ void printRho(cell *cells, int N) {
   printf("\n");
 }
 
-void simloop() {
+void simloop(int n) {
   // Simulation parameters
-  size_t N = 128;
+  size_t N = n;
   double boxsize = 1.0;
   double gamma = 5.0 / 3.0;
   double courant_fac = 0.4;
@@ -432,12 +432,26 @@ void simloop() {
 
   // fclose(stream);
   printf("done!, outputcount: %zu\n", outputCount);
+  free(cells);
 }
 
-int main() {
-  omp_set_num_threads(2);
+int main(int argc, char* argv[]) {
+  
+  int a = 1;
+  int N = 10;
+
+  if(argc < 3) {
+    printf("Pass in thread number and resulotion as args\n");
+    return 0;
+  }
+  else{
+    a = atoi(argv[1]);
+    N = atoi(argv[2]);
+  }
+
+  omp_set_num_threads(a);
   printf("threads: %d\n", omp_get_max_threads());
 
-  simloop();
+  simloop(N);
   return 0;
 }
