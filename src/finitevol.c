@@ -6,69 +6,197 @@
 #include <math.h>
 #include <stdio.h>
 
-typedef struct cell {
-  double Mass;
-  double Momx;
-  double Momy;
-  double Energy;
-  double gamma;
-  double vol;
+typedef struct cells {
+  double* Mass;
+  double* Momx;
+  double* Momy;
+  double* Energy;
+  double* gamma;
+  double* vol;
 
-  double rho;
-  double vx;
-  double vy;
-  double P;
+  double* rho;
+  double* vx;
+  double* vy;
+  double* P;
 
-  double rho_prime;
-  double vx_prime;
-  double vy_prime;
-  double P_prime;
+  double* rho_prime;
+  double* vx_prime;
+  double* vy_prime;
+  double* P_prime;
 
-  double rho_dx;
-  double rho_dy;
+  double* rho_dx;
+  double* rho_dy;
 
-  double vx_dx;
-  double vx_dy;
+  double* vx_dx;
+  double* vx_dy;
 
-  double vy_dx;
-  double vy_dy;
+  double* vy_dx;
+  double* vy_dy;
 
-  double P_dx;
-  double P_dy;
+  double* P_dx;
+  double* P_dy;
 
-  double rho_XL;
-  double rho_XR;
-  double rho_YL;
-  double rho_YR;
+  double* rho_XL;
+  double* rho_XR;
+  double* rho_YL;
+  double* rho_YR;
 
-  double vx_XL;
-  double vx_XR;
-  double vx_YL;
-  double vx_YR;
+  double* vx_XL;
+  double* vx_XR;
+  double* vx_YL;
+  double* vx_YR;
 
-  double vy_XL;
-  double vy_XR;
-  double vy_YL;
-  double vy_YR;
+  double* vy_XL;
+  double* vy_XR;
+  double* vy_YL;
+  double* vy_YR;
 
-  double P_XL;
-  double P_XR;
-  double P_YL;
-  double P_YR;
+  double* P_XL;
+  double* P_XR;
+  double* P_YL;
+  double* P_YR;
 
-  double flux_Mass_X;
-  double flux_Mass_Y;
+  double* flux_Mass_X;
+  double* flux_Mass_Y;
 
-  double flux_Momx_X;
-  double flux_Momx_Y;
+  double* flux_Momx_X;
+  double* flux_Momx_Y;
 
-  double flux_Momy_X;
-  double flux_Momy_Y;
+  double* flux_Momy_X;
+  double* flux_Momy_Y;
 
-  double flux_Energy_X;
-  double flux_Energy_Y;
+  double*  flux_Energy_X;
+  double* flux_Energy_Y;
 
-} cell;
+} cells;
+
+
+void freeCells(cells c) {
+  free(c.Mass);
+ free(c.Momx);
+ free(c.Momy);
+ free(c.Energy);
+ free(c.gamma);
+ free(c.vol);
+
+ free(c.rho);
+ free(c.vx);
+ free(c.vy);
+ free(c.P);
+
+ free(c.rho_prime);
+ free(c.vx_prime);
+ free(c.vy_prime);
+ free(c.P_prime);
+
+ free(c.rho_dx);
+ free(c.rho_dy);
+
+ free(c.vx_dx);
+ free(c.vx_dy);
+
+ free(c.vy_dx);
+ free(c.vy_dy);
+
+ free(c.P_dx);
+ free(c.P_dy);
+
+ free(c.rho_XL);
+ free(c.rho_XR);
+ free(c.rho_YL);
+ free(c.rho_YR);
+
+ free(c.vx_XL);
+ free(c.vx_XR);
+ free(c.vx_YL);
+ free(c.vx_YR);
+
+ free(c.vy_XL);
+ free(c.vy_XR);
+ free(c.vy_YL);
+ free(c.vy_YR);
+
+ free(c.P_XL);
+ free(c.P_XR);
+ free(c.P_YL);
+ free(c.P_YR);
+
+ free(c.flux_Mass_X);
+ free(c.flux_Mass_Y);
+
+ free(c.flux_Momx_X);
+ free(c.flux_Momx_Y);
+
+ free(c.flux_Momy_X);
+ free(c.flux_Momy_Y);
+
+ free(c. flux_Energy_X);
+ free(c.flux_Energy_Y);
+}
+
+
+void initCells(cells * c, int N) {
+  c->Mass = (double *)malloc(sizeof(double) * N * N);
+  c->Momx = (double *)malloc(sizeof(double) * N * N);
+  c->Momy = (double *)malloc(sizeof(double) * N * N);
+  c->Energy = (double *)malloc(sizeof(double) * N * N);
+  c->gamma = (double *)malloc(sizeof(double) * N * N);
+  c->vol = (double *)malloc(sizeof(double) * N * N);
+
+  c->rho = (double *)malloc(sizeof(double) * N * N);
+  c->vx = (double *)malloc(sizeof(double) * N * N);
+  c->vy = (double *)malloc(sizeof(double) * N * N);
+  c->P = (double *)malloc(sizeof(double) * N * N);
+
+  c->rho_prime = (double *)malloc(sizeof(double) * N * N);
+  c->vx_prime = (double *)malloc(sizeof(double) * N * N);
+  c->vy_prime = (double *)malloc(sizeof(double) * N * N);
+  c->P_prime = (double *)malloc(sizeof(double) * N * N);
+
+  c->rho_dx = (double *)malloc(sizeof(double) * N * N);
+  c->rho_dy = (double *)malloc(sizeof(double) * N * N);
+
+  c->vx_dx = (double *)malloc(sizeof(double) * N * N);
+  c->vx_dy = (double *)malloc(sizeof(double) * N * N);
+
+  c->vy_dx = (double *)malloc(sizeof(double) * N * N);
+  c->vy_dy = (double *)malloc(sizeof(double) * N * N);
+
+  c->P_dx = (double *)malloc(sizeof(double) * N * N);
+  c->P_dy = (double *)malloc(sizeof(double) * N * N);
+
+  c->rho_XL = (double *)malloc(sizeof(double) * N * N);
+  c->rho_XR = (double *)malloc(sizeof(double) * N * N);
+  c->rho_YL = (double *)malloc(sizeof(double) * N * N);
+  c->rho_YR = (double *)malloc(sizeof(double) * N * N);
+
+  c->vx_XL = (double *)malloc(sizeof(double) * N * N);
+  c->vx_XR = (double *)malloc(sizeof(double) * N * N);
+  c->vx_YL = (double *)malloc(sizeof(double) * N * N);
+  c->vx_YR = (double *)malloc(sizeof(double) * N * N);
+
+  c->vy_XL = (double *)malloc(sizeof(double) * N * N);
+  c->vy_XR = (double *)malloc(sizeof(double) * N * N);
+  c->vy_YL = (double *)malloc(sizeof(double) * N * N);
+  c->vy_YR = (double *)malloc(sizeof(double) * N * N);
+
+  c->P_XL = (double *)malloc(sizeof(double) * N * N);
+  c->P_XR = (double *)malloc(sizeof(double) * N * N);
+  c->P_YL = (double *)malloc(sizeof(double) * N * N);
+  c->P_YR = (double *)malloc(sizeof(double) * N * N);
+
+  c->flux_Mass_X = (double *)malloc(sizeof(double) * N * N);
+  c->flux_Mass_Y = (double *)malloc(sizeof(double) * N * N);
+
+  c->flux_Momx_X = (double *)malloc(sizeof(double) * N * N);
+  c->flux_Momx_Y = (double *)malloc(sizeof(double) * N * N);
+
+  c->flux_Momy_X = (double *)malloc(sizeof(double) * N * N);
+  c->flux_Momy_Y = (double *)malloc(sizeof(double) * N * N);
+
+   c->flux_Energy_X = (double *)malloc(sizeof(double) * N * N);
+  c->flux_Energy_Y = (double *)malloc(sizeof(double) * N * N);
+}
 
 void getConserved(double rho, double vx, double vy, double P, double gamma,
                   double vol, double *Mass_o, double *Momx_o, double *Momy_o,
@@ -196,7 +324,7 @@ void meshgrid(double *xv, double *yv, size_t N, double *x_res, double *y_res) {
   }
 }
 
-void init_cells(cell *cells, double *X, double *Y, double gamma, double vol,
+void init_cells(cells *c, double *X, double *Y, double gamma, double vol,
                 double w0, double sigma, size_t N) {
   for (size_t i = 0; i < N * N; ++i) {
     double val = fabs(Y[i] - 0.5) < 0.25 ? 1.0 : 0.0;
@@ -208,16 +336,15 @@ void init_cells(cell *cells, double *X, double *Y, double gamma, double vol,
                  exp(-1 * (pow(Y[i] - 0.75, 2) / (2 * pow(sigma, 2)))));
     double P = 2.5;
 
-    cell c;
-    getConserved(rho, vx, vy, P, gamma, vol, &c.Mass, &c.Momx, &c.Momy,
-                 &c.Energy);
-    cells[i] = c;
+    getConserved(rho, vx, vy, P, gamma, vol, &c->Mass[i], &c->Momx[i], &c->Momy[i],
+                 &c->Energy[i]);
+
   }
 }
 
-void printRho(cell *cells, int N) {
+void printRho(cells *c, int N) {
   for (int i = 0; i < N * N; ++i) {
-    printf("%lf ", cells[i].rho);
+    printf("%lf ", c->rho[i]);
   }
   printf("\n");
 }
@@ -252,8 +379,9 @@ void simloop(int n) {
   meshgrid(xlin, xlin, N, Y, X);
 
   // Initialize cells
-  cell *cells = malloc(N * N * sizeof(cell));
-  init_cells(cells, X, Y, gamma, vol, w0, sigma, N);
+  cells c; 
+  initCells(&c, N);
+  init_cells(&c, X, Y, gamma, vol, w0, sigma, N);
 
   free(xlin);
   free(X);
@@ -261,8 +389,7 @@ void simloop(int n) {
 
   size_t outputCount = 1;
 
-  int arr_sec = N * N / omp_get_max_threads();
-  int arr_extra = (N * N) % omp_get_max_threads();
+
 
   // Cellwise loop for multithreading, swap for and while for multi-threading
   while (t < tEnd) {
@@ -272,6 +399,8 @@ void simloop(int n) {
 
 #pragma omp parallel
     {
+      int arr_sec = N * N / omp_get_max_threads();
+      int arr_extra = (N * N) % omp_get_max_threads();
 
       int n = omp_get_thread_num();
       int start = n * arr_sec + (n < arr_extra ? n : arr_extra);
@@ -279,13 +408,13 @@ void simloop(int n) {
 
       for (size_t i = start; i < end; ++i) {
 
-        getPrimitive(cells[i].Mass, cells[i].Momx, cells[i].Momy,
-                     cells[i].Energy, gamma, vol, &cells[i].rho, &cells[i].vx,
-                     &cells[i].vy, &cells[i].P);
+        getPrimitive(c.Mass[i], c.Momx[i], c.Momy[i],
+                     c.Energy[i], gamma, vol, &c.rho[i], &c.vx[i],
+                     &c.vy[i], &c.P[i]);
 
         double dt_i = courant_fac *
-                      (dx / (sqrt(gamma * cells[i].P / cells[i].rho) +
-                             sqrt(pow(cells[i].vx, 2) + pow(cells[i].vy, 2))));
+                      (dx / (sqrt(gamma * c.P[i] / c.rho[i]) +
+                             sqrt(pow(c.vx[i], 2) + pow(c.vy[i], 2))));
 
 #pragma omp critical
         { dt = dt < dt_i ? dt : dt_i; }
@@ -325,40 +454,40 @@ void simloop(int n) {
         size_t right = y * N + (x + 1) % N;
 
         // Requires nearby cells
-        getGradient(cells[i].rho, cells[up].rho, cells[down].rho,
-                    cells[left].rho, cells[right].rho, dx, &cells[i].rho_dx,
-                    &cells[i].rho_dy);
+        getGradient(c.rho[i], c.rho[up], c.rho[down],
+                    c.rho[left], c.rho[right], dx, &c.rho_dx[i],
+                    &c.rho_dy[i]);
 
-        getGradient(cells[i].vx, cells[up].vx, cells[down].vx, cells[left].vx,
-                    cells[right].vx, dx, &cells[i].vx_dx, &cells[i].vx_dy);
+        getGradient(c.vx[i], c.vx[up], c.vx[down], c.vx[left],
+                    c.vx[right], dx, &c.vx_dx[i], &c.vx_dy[i]);
 
-        getGradient(cells[i].vy, cells[up].vy, cells[down].vy, cells[left].vy,
-                    cells[right].vy, dx, &cells[i].vy_dx, &cells[i].vy_dy);
+        getGradient(c.vy[i], c.vy[up], c.vy[down], c.vy[left],
+                    c.vy[right], dx, &c.vy_dx[i], &c.vy_dy[i]);
 
-        getGradient(cells[i].P, cells[up].P, cells[down].P, cells[left].P,
-                    cells[right].P, dx, &cells[i].P_dx, &cells[i].P_dy);
+        getGradient(c.P[i], c.P[up], c.P[down], c.P[left],
+                    c.P[right], dx, &c.P_dx[i], &c.P_dy[i]);
 
         // Extrapolate half step in time
-        cells[i].rho_prime =
-            cells[i].rho - 0.5 * dt *
-                               ((cells[i].vx * cells[i].rho_dx) +
-                                (cells[i].rho * cells[i].vx_dx) +
-                                (cells[i].vy * cells[i].rho_dy) +
-                                (cells[i].rho * cells[i].vy_dy));
+        c.rho_prime[i] =
+            c.rho[i] - 0.5 * dt *
+                               ((c.vx[i] * c.rho_dx[i]) +
+                                (c.rho[i] * c.vx_dx[i]) +
+                                (c.vy[i] * c.rho_dy[i]) +
+                                (c.rho[i] * c.vy_dy[i]));
 
-        cells[i].vx_prime =
-            cells[i].vx - (0.5 * dt) * (cells[i].vx * cells[i].vx_dx +
-                                        cells[i].vy * cells[i].vx_dy +
-                                        (1 / cells[i].rho) * cells[i].P_dx);
-        cells[i].vy_prime =
-            cells[i].vy - (0.5 * dt) * (cells[i].vx * cells[i].vy_dx +
-                                        cells[i].vy * cells[i].vy_dy +
-                                        (1 / cells[i].rho) * cells[i].P_dy);
-        cells[i].P_prime =
-            cells[i].P -
+        c.vx_prime[i] =
+            c.vx[i] - (0.5 * dt) * (c.vx[i] * c.vx_dx[i] +
+                                        c.vy[i] * c.vx_dy[i] +
+                                        (1 / c.rho[i]) * c.P_dx[i]);
+        c.vy_prime[i] =
+            c.vy[i] - (0.5 * dt) * (c.vx[i] * c.vy_dx[i] +
+                                        c.vy[i] * c.vy_dy[i] +
+                                        (1 / c.rho[i]) * c.P_dy[i]);
+        c.P_prime[i] =
+            c.P[i] -
             (0.5 * dt) *
-                (gamma * cells[i].P * (cells[i].vx_dx + cells[i].vy_dy) +
-                 cells[i].vx * cells[i].P_dx + cells[i].vy * cells[i].P_dy);
+                (gamma * c.P[i] * (c.vx_dx[i] + c.vy_dy[i]) +
+                 c.vx[i] * c.P_dx[i] + c.vy[i] * c.P_dy[i]);
       }
 
 #pragma omp barrier
@@ -369,39 +498,39 @@ void simloop(int n) {
         size_t up = (y - 1 + N) % N * N + x;
         size_t left = y * N + (x - 1 + N) % N;
 
-        extrapolateInSpaceToFace(cells[i].rho_prime, cells[i].rho_dx,
-                                 cells[i].rho_dy, dx, &cells[up].rho_XL,
-                                 &cells[i].rho_XR, &cells[left].rho_YL,
-                                 &cells[i].rho_YR);
+        extrapolateInSpaceToFace(c.rho_prime[i], c.rho_dx[i],
+                                 c.rho_dy[i], dx, &c.rho_XL[up],
+                                 &c.rho_XR[i], &c.rho_YL[left],
+                                 &c.rho_YR[i]);
 
-        extrapolateInSpaceToFace(cells[i].vx_prime, cells[i].vx_dx,
-                                 cells[i].vx_dy, dx, &cells[up].vx_XL,
-                                 &cells[i].vx_XR, &cells[left].vx_YL,
-                                 &cells[i].vx_YR);
+        extrapolateInSpaceToFace(c.vx_prime[i], c.vx_dx[i],
+                                 c.vx_dy[i], dx, &c.vx_XL[up],
+                                 &c.vx_XR[i], &c.vx_YL[left],
+                                 &c.vx_YR[i]);
 
-        extrapolateInSpaceToFace(cells[i].vy_prime, cells[i].vy_dx,
-                                 cells[i].vy_dy, dx, &cells[up].vy_XL,
-                                 &cells[i].vy_XR, &cells[left].vy_YL,
-                                 &cells[i].vy_YR);
+        extrapolateInSpaceToFace(c.vy_prime[i], c.vy_dx[i],
+                                 c.vy_dy[i], dx, &c.vy_XL[up],
+                                 &c.vy_XR[i], &c.vy_YL[left],
+                                 &c.vy_YR[i]);
 
-        extrapolateInSpaceToFace(cells[i].P_prime, cells[i].P_dx, cells[i].P_dy,
-                                 dx, &cells[up].P_XL, &cells[i].P_XR,
-                                 &cells[left].P_YL, &cells[i].P_YR);
+        extrapolateInSpaceToFace(c.P_prime[i], c.P_dx[i], c.P_dy[i],
+                                 dx, &c.P_XL[up], &c.P_XR[i],
+                                 &c.P_YL[left], &c.P_YR[i]);
       }
 
 #pragma omp barrier
       for (size_t i = start; i < end; ++i) {
-        getFlux(cells[i].rho_XL, cells[i].rho_XR, cells[i].vx_XL,
-                cells[i].vx_XR, cells[i].vy_XL, cells[i].vy_XR, cells[i].P_XL,
-                cells[i].P_XR, gamma, &cells[i].flux_Mass_X,
-                &cells[i].flux_Momx_X, &cells[i].flux_Momy_X,
-                &cells[i].flux_Energy_X);
+        getFlux(c.rho_XL[i], c.rho_XR[i], c.vx_XL[i],
+                c.vx_XR[i], c.vy_XL[i], c.vy_XR[i], c.P_XL[i],
+                c.P_XR[i], gamma, &c.flux_Mass_X[i],
+                &c.flux_Momx_X[i], &c.flux_Momy_X[i],
+                &c.flux_Energy_X[i]);
 
-        getFlux(cells[i].rho_YL, cells[i].rho_YR, cells[i].vy_YL,
-                cells[i].vy_YR, cells[i].vx_YL, cells[i].vx_YR, cells[i].P_YL,
-                cells[i].P_YR, gamma, &cells[i].flux_Mass_Y,
-                &cells[i].flux_Momy_Y, &cells[i].flux_Momx_Y,
-                &cells[i].flux_Energy_Y);
+        getFlux(c.rho_YL[i], c.rho_YR[i], c.vy_YL[i],
+                c.vy_YR[i], c.vx_YL[i], c.vx_YR[i], c.P_YL[i],
+                c.P_YR[i], gamma, &c.flux_Mass_Y[i],
+                &c.flux_Momy_Y[i], &c.flux_Momx_Y[i],
+                &c.flux_Energy_Y[i]);
       }
 
 #pragma omp barrier
@@ -411,34 +540,36 @@ void simloop(int n) {
         size_t up = (y - 1 + N) % N * N + x;
         size_t left = y * N + (x - 1 + N) % N;
 
-        cells[i].Mass = applyFluxes(
-            cells[i].Mass, cells[i].flux_Mass_X, cells[up].flux_Mass_X,
-            cells[left].flux_Mass_Y, cells[i].flux_Mass_Y, dx, dt);
+        c.Mass[i] = applyFluxes(
+            c.Mass[i], c.flux_Mass_X[i], c.flux_Mass_X[up],
+            c.flux_Mass_Y[left], c.flux_Mass_Y[i], dx, dt);
 
-        cells[i].Momx = applyFluxes(
-            cells[i].Momx, cells[i].flux_Momx_X, cells[up].flux_Momx_X,
-            cells[left].flux_Momx_Y, cells[i].flux_Momx_Y, dx, dt);
+        c.Momx[i] = applyFluxes(
+            c.Momx[i], c.flux_Momx_X[i], c.flux_Momx_X[up],
+            c.flux_Momx_Y[left], c.flux_Momx_Y[i], dx, dt);
 
-        cells[i].Momy = applyFluxes(
-            cells[i].Momy, cells[i].flux_Momy_X, cells[up].flux_Momy_X,
-            cells[left].flux_Momy_Y, cells[i].flux_Momy_Y, dx, dt);
+        c.Momy[i] = applyFluxes(
+            c.Momy[i], c.flux_Momy_X[i], c.flux_Momy_X[up],
+            c.flux_Momy_Y[left], c.flux_Momy_Y[i], dx, dt);
 
-        cells[i].Energy = applyFluxes(
-            cells[i].Energy, cells[i].flux_Energy_X, cells[up].flux_Energy_X,
-            cells[left].flux_Energy_Y, cells[i].flux_Energy_Y, dx, dt);
+        c.Energy[i] = applyFluxes(
+            c.Energy[i], c.flux_Energy_X[i], c.flux_Energy_X[up],
+            c.flux_Energy_Y[left], c.flux_Energy_Y[i], dx, dt);
       }
     }
   }
 
   // fclose(stream);
   printf("done!, outputcount: %zu\n", outputCount);
-  free(cells);
+  freeCells(c);
 }
 
 int main(int argc, char* argv[]) {
   
   int a = 1;
   int N = 10;
+  
+  putenv( "OMP_WAIT_POLICY=ACTIVE" );
 
   if(argc < 3) {
     printf("Pass in thread number and resulotion as args\n");
@@ -451,7 +582,11 @@ int main(int argc, char* argv[]) {
 
   omp_set_num_threads(a);
   printf("threads: %d\n", omp_get_max_threads());
+  
 
+  double t1 = omp_get_wtime();
   simloop(N);
+  double t2 = omp_get_wtime();
+  printf("Time elapsed: %lf seconds\n", t2 - t1);
   return 0;
 }
