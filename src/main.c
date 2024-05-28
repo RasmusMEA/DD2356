@@ -8,15 +8,21 @@
 #include <omp.h>
 
 
-int main() {
+int main(int argc, char* argv[]) {
   
+  if(argc != 3) {
+    return 0;
+  }
+
+  int threads = atoi(argv[1]);
+  int n = atoi(argv[2]);
+
   omp_set_num_threads(8);
-  size_t threads = omp_get_max_threads();
   // int i = omp_get_num_threads();
 
   printf("using %d threads\n", threads);
 
-  int N = 128;
+  int N = n;
   double boxsize = 1.0;
   double gamma = 5.0 / 3.0;
   double courant_fac = 0.4;
@@ -109,7 +115,7 @@ int main() {
 
   while (t < tEnd) {
 
-    printf("%lf / %lf\n", t, tEnd);
+    // printf("%lf / %lf\n", t, tEnd);
 
     getPrimitive(Mass, Momx, Momy, Energy, N, gamma, vol, rho, vx, vy, P);
 
