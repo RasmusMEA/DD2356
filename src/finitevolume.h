@@ -22,7 +22,7 @@ void getPrimitive(double *Mass, double *Momx, double *Momy, double *Energy,
                   int N, double gamma, double vol, double *rho_o, double *vx_o,
                   double *vy_o, double *P_o);
 
-void getGradient(double *f, int N, double dx, double *f_dx_o, double *f_dy_o);
+void getGradient(double *f, int w, int h, double dx, double *f_dx_o, double *f_dy_o);
 
 void getRhoPrime(double *rho, double *rho_dx, double *rho_dy, double *vx,
                  double *vx_dx, double *vy, double *vy_dy, double dt, int N,

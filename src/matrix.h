@@ -21,10 +21,10 @@ void div_DM(double a, double * b, int N, double * out);
 void add_MD(double *a, double b, int N, double *out);
 void sub_MD(double *a, double b, int N, double *out);
 
-void rollUp(double *a, int N, double *out);
-void rollDown(double *a, int N, double *out);
-void rollLeft(double *a, int N, double *out);
-void rollRight(double *a, int N, double *out);
+void rollUp(double *a, int w, int h, double *out);
+void rollDown(double *a, int w, int h, double *out);
+void rollLeft(double *a, int w, int h, double *out);
+void rollRight(double *a, int w, int h, double *out);
 
 double min(double * a, int N);
 
