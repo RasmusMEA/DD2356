@@ -9,6 +9,8 @@
 
 #include "finitevol.h"
 
+// argv[1] = resolution for the simulation
+// argv[2] = number of threads for mpi process to use to use
 int main(int argc, char *argv[]) {
   if (argc < 3) {
     printf("Pass in Matrix size N and max threads for omp");
@@ -185,20 +187,23 @@ int main(int argc, char *argv[]) {
 
   size_t outputCount = 1;
 
+  // Main simulation loop
   while (t < tEnd) {
     double dt = 999999999999999999.0;
     double *dt_i = (double *)malloc(sizeof(double) * omp_get_max_threads());
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < omp_get_max_threads(); ++i) {
       dt_i[i] = dt;
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (size_t i = 0; i < divWidth * divHeight; ++i) {
+      // Get primitive values
       getPrimitive(Mass[i], Momx[i], Momy[i], Energy[i], gamma, vol, &rho[3 * divWidth + i], &vx[3 * divWidth + i], &vy[3 * divWidth + i],
                    &P[divWidth * 3 + i]);
 
+      // calculate dt to determine timestep later
       double dt =
           courant_fac *
           (dx / (sqrt(gamma * P[divWidth * 3 + i] / rho[divWidth * 3 + i]) + sqrt(pow(vx[divWidth * 3 + i], 2) + pow(vy[divWidth * 3 + i], 2))));
@@ -313,7 +318,7 @@ int main(int argc, char *argv[]) {
     // Skipping first and last row since we don't need to calculate these values,
     // we only need them to be in the matrix because the rest of the matrix
     // depends on them
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int y = 1; y < divHeight + 5; ++y) {
       for (int x = 0; x < divWidth; ++x) {
         int up = ((y - 1 + divHeight + 6) % (divHeight + 6)) * divWidth + x;
@@ -338,7 +343,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int y = 0; y < divHeight + 4; ++y) {
       for (int x = 0; x < divWidth; ++x) {
         int up = ((y - 1 + divHeight + 4) % (divHeight + 4)) * divWidth + x;
@@ -352,7 +357,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int y = 1; y < divHeight + 3; ++y) {
       for (int x = 0; x < divWidth; ++x) {
         int i = y * divWidth + x;
@@ -364,7 +369,8 @@ int main(int argc, char *argv[]) {
                 &flux_Momy_Y[i - divWidth], &flux_Momx_Y[i - divWidth], &flux_Energy_Y[i - divWidth]);
       }
     }
-#pragma omp parallel for
+    
+    #pragma omp parallel for
     for (int y = 1; y < divHeight + 1; ++y) {
       for (int x = 0; x < divWidth; ++x) {
         int i = y * divWidth + x;

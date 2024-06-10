@@ -10,13 +10,12 @@
 void simloop(int n) {
 
   // Simulation parameters
-  int N = n;
+  int N = n; // Resolution of the simulation, i.e x and y dimension of matricies
   double boxsize = 1.0;
-  double gamma = 5.0 / 3.0;
+  double gamma = 5.0 / 3.0; // Ideal gas gamma
   double courant_fac = 0.4;
-  double t = 0.0;
-  // number of seconds being simulated
-  double tEnd = 2.0;
+  double t = 0.0; // Start time
+  double tEnd = 2.0; // End time
 
   // How often to output frame if real time pltting is desires
   double tOut = 0.02;
@@ -108,6 +107,7 @@ void simloop(int n) {
 
   size_t outputCount = 1;
 
+  // Main simulation loop
   while (t < tEnd) {
     double dt = 999999999999999999.0;
 
@@ -157,6 +157,7 @@ void simloop(int n) {
       size_t left = y * N + (x - 1 + N) % N;
       size_t right = y * N + (x + 1) % N;
 
+      // Calculate gradients
       getGradient(rho[i], rho[up], rho[down], rho[left], rho[right], dx, &rho_dx[i], &rho_dy[i]);
       getGradient(vx[i], vx[up], vx[down], vx[left], vx[right], dx, &vx_dx[i], &vx_dy[i]);
       getGradient(vy[i], vy[up], vy[down], vy[left], vy[right], dx, &vy_dx[i], &vy_dy[i]);
@@ -176,11 +177,8 @@ void simloop(int n) {
       size_t left = y * N + (x - 1 + N) % N;
 
       extrapolateInSpaceToFace(rho_prime[i], rho_dx[i], rho_dy[i], dx, &rho_XL[up], &rho_XR[i], &rho_YL[left], &rho_YR[i]);
-
       extrapolateInSpaceToFace(vx_prime[i], vx_dx[i], vx_dy[i], dx, &vx_XL[up], &vx_XR[i], &vx_YL[left], &vx_YR[i]);
-
       extrapolateInSpaceToFace(vy_prime[i], vy_dx[i], vy_dy[i], dx, &vy_XL[up], &vy_XR[i], &vy_YL[left], &vy_YR[i]);
-
       extrapolateInSpaceToFace(P_prime[i], P_dx[i], P_dy[i], dx, &P_XL[up], &P_XR[i], &P_YL[left], &P_YR[i]);
     }
 
@@ -199,11 +197,8 @@ void simloop(int n) {
       size_t left = y * N + (x - 1 + N) % N;
 
       Mass[i] = applyFluxes(Mass[i], flux_Mass_X[i], flux_Mass_X[up], flux_Mass_Y[left], flux_Mass_Y[i], dx, dt);
-
       Momx[i] = applyFluxes(Momx[i], flux_Momx_X[i], flux_Momx_X[up], flux_Momx_Y[left], flux_Momx_Y[i], dx, dt);
-
       Momy[i] = applyFluxes(Momy[i], flux_Momy_X[i], flux_Momy_X[up], flux_Momy_Y[left], flux_Momy_Y[i], dx, dt);
-
       Energy[i] = applyFluxes(Energy[i], flux_Energy_X[i], flux_Energy_X[up], flux_Energy_Y[left], flux_Energy_Y[i], dx, dt);
     }
   }

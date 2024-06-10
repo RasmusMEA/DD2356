@@ -15,7 +15,6 @@ void simloop(int n) {
   double t = 0.0;
   double tEnd = 2.0;
   double tOut = 0.02;
-  bool useSlopeLimiting = false;
   double plotRealTime = true;
 
   double* Mass = (double*)malloc(sizeof(double) * N * N);
@@ -99,6 +98,7 @@ void simloop(int n) {
 
   size_t outputCount = 1;
 
+  // Main simulation loop
   while (t < tEnd) {
     double dt = 999999999999999999.0;
 
@@ -107,16 +107,19 @@ void simloop(int n) {
     double* dt_i = (double*)malloc(sizeof(double) * omp_get_max_threads());
 
     // initalize all values in dti to be a large double, so we can find local minimum
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < omp_get_max_threads(); ++i) {
       dt_i[i] = dt;
     }
 
-    // calculate rho, vx, vy and P as well as local minimum dt for each process
-#pragma omp parallel for
+    
+    #pragma omp parallel for
     for (size_t i = 0; i < N * N; ++i) {
+      // Calculate primitive variables
       getPrimitive(Mass[i], Momx[i], Momy[i], Energy[i], gamma, vol, &rho[i], &vx[i], &vy[i], &P[i]);
 
+      // calculate timestep in order to determine
+      // minimum timestep later
       double dt = courant_fac * (dx / (sqrt(gamma * P[i] / rho[i]) + sqrt(pow(vx[i], 2) + pow(vy[i], 2))));
 
       if (dt < dt_i[omp_get_thread_num()]) {
@@ -155,8 +158,8 @@ void simloop(int n) {
 
     }
 
-// Calculate next step for all cells
-#pragma omp parallel for
+    // Calculate next step for all cells
+    #pragma omp parallel for
     for (size_t i = 0; i < N * N; ++i) {
       // Indexing
       size_t y = i / N;
@@ -168,11 +171,8 @@ void simloop(int n) {
 
       // Requires nearby cells
       getGradient(rho[i], rho[up], rho[down], rho[left], rho[right], dx, &rho_dx[i], &rho_dy[i]);
-
       getGradient(vx[i], vx[up], vx[down], vx[left], vx[right], dx, &vx_dx[i], &vx_dy[i]);
-
       getGradient(vy[i], vy[up], vy[down], vy[left], vy[right], dx, &vy_dx[i], &vy_dy[i]);
-
       getGradient(P[i], P[up], P[down], P[left], P[right], dx, &P_dx[i], &P_dy[i]);
 
       // Extrapolate half step in time
@@ -183,7 +183,7 @@ void simloop(int n) {
       P_prime[i] = P[i] - (0.5 * dt) * (gamma * P[i] * (vx_dx[i] + vy_dy[i]) + vx[i] * P_dx[i] + vy[i] * P_dy[i]);
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (size_t i = 0; i < N * N; ++i) {
       size_t y = i / N;
       size_t x = i % N;
@@ -191,15 +191,12 @@ void simloop(int n) {
       size_t left = y * N + (x - 1 + N) % N;
 
       extrapolateInSpaceToFace(rho_prime[i], rho_dx[i], rho_dy[i], dx, &rho_XL[up], &rho_XR[i], &rho_YL[left], &rho_YR[i]);
-
       extrapolateInSpaceToFace(vx_prime[i], vx_dx[i], vx_dy[i], dx, &vx_XL[up], &vx_XR[i], &vx_YL[left], &vx_YR[i]);
-
       extrapolateInSpaceToFace(vy_prime[i], vy_dx[i], vy_dy[i], dx, &vy_XL[up], &vy_XR[i], &vy_YL[left], &vy_YR[i]);
-
       extrapolateInSpaceToFace(P_prime[i], P_dx[i], P_dy[i], dx, &P_XL[up], &P_XR[i], &P_YL[left], &P_YR[i]);
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (size_t i = 0; i < N * N; ++i) {
       getFlux(rho_XL[i], rho_XR[i], vx_XL[i], vx_XR[i], vy_XL[i], vy_XR[i], P_XL[i], P_XR[i], gamma, &flux_Mass_X[i], &flux_Momx_X[i],
               &flux_Momy_X[i], &flux_Energy_X[i]);
@@ -208,7 +205,7 @@ void simloop(int n) {
               &flux_Momx_Y[i], &flux_Energy_Y[i]);
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (size_t i = 0; i < N * N; ++i) {
       size_t y = i / N;
       size_t x = i % N;
@@ -216,11 +213,8 @@ void simloop(int n) {
       size_t left = y * N + (x - 1 + N) % N;
 
       Mass[i] = applyFluxes(Mass[i], flux_Mass_X[i], flux_Mass_X[up], flux_Mass_Y[left], flux_Mass_Y[i], dx, dt);
-
       Momx[i] = applyFluxes(Momx[i], flux_Momx_X[i], flux_Momx_X[up], flux_Momx_Y[left], flux_Momx_Y[i], dx, dt);
-
       Momy[i] = applyFluxes(Momy[i], flux_Momy_X[i], flux_Momy_X[up], flux_Momy_Y[left], flux_Momy_Y[i], dx, dt);
-
       Energy[i] = applyFluxes(Energy[i], flux_Energy_X[i], flux_Energy_X[up], flux_Energy_Y[left], flux_Energy_Y[i], dx, dt);
     }
   }

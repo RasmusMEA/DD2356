@@ -315,7 +315,6 @@ def main():
             outputCount += 1
 
     # Save figure
-
     toterr = 0.0
     for y in range(N):
         for x in range(N):
